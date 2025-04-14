@@ -1,28 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tailwind Tea House</title>
-<!-- Google Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet" />
 
-<script src="https://cdn.tailwindcss.com"></script>
-
-</head>  <script>
+    <!-- Google Front End -->
+    <script src="https://kit.fontawesome.com/914e1e4897.js" crossorigin="anonymous"></script>
+    <!-- Font Awesome Script -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS -->
+</head>
+<script>
     tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            clifford: '#da373d',
-          }
-        }
-      }
-    }
-  </script>
+        theme: {
+            extend: {
+                colors: {
+                    clifford: "#da373d",
+                },
+            },
+        },
+    };
+</script>
+
 <body>
-    
+    <main class="max-w-screen-xl mx-auto px-16 lg:px-28">
+        <header class="flex pt-10 mb-20">
+            <div>
+                <h1 class="text-5xl">
+                    It's good <br />
+                    tea time at The <br />
+                    Tea House
+                </h1>
+                <p class="text-gray-500 w-3/4">
+                    Tea and Botanical Solutions Supplier Give Optimum Satisfaction To
+                    Your Taste Buds.
+                </p>
+                <br />
+                <button class="bg-gradient-to-r from-orange-500 to-red-500 px-5 py-3 rounded-lg text-white font-bold">
+                    Explore More <i class="fa-solid fa-arrow-right -rotate-45"></i>
+                </button>
+            </div>
+            <div class="relative">
+                <div>
+                    <img class="w-full" src="./images/banner.png" alt="Banner" />
+                </div>
+                <div class=" absolute flex items-center bg-white shadow-lg px-2 py-3 md:px-10 lg:py-4 rounded-lg top-28 md:top-80 md:left-32 lg:left-28 lg:py-4 ">
+                    <div>
+                        <i class="fa-solid fa-star text-2xl text-amber-400"></i>
+                    </div>
+                    <div class="ml-2">
+                        <h2 class="lg:text-2xl font-bold">5.00</h2>
+                        <p class="text-gray-500"> Trust Pilot Ratings</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+    </main>
 </body>
+
 </html>
