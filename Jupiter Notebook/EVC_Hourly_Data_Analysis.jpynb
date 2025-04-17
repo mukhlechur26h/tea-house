@@ -1,0 +1,45 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load and prepare data
+df = pd.read_csv("724-000005.csv")
+df['Time'] = pd.to_datetime(df['Time'], format='%Y-%m-%d,%H:%M:%S')
+df.set_index('Time', inplace=True)
+df.rename(columns={
+    'Vb [m3]': 'Uncorrected Volume',
+    'Vm [m3]': 'Corrected Volume',
+    'p.MP  [ bar]': 'Pressure (bar)',
+    'T.MP [{C]': 'Temperature (C)'
+}, inplace=True)
+
+df['Hourly Usage'] = df['Corrected Volume'].diff()
+df['Pressure (psig)'] = df['Pressure (bar)'] * 14.5038
+march_data = df.loc['2025-03']
+
+# Loop through each day and plot with fixed time axis
+for date in march_data.index.normalize().unique():
+    daily = march_data.loc[date.strftime('%Y-%m-%d')]
+
+    fig, ax1 = plt.subplots(figsize=(12, 4))
+    ax1.set_title(f"Hourly Gas Usage and Pressure (psig) - {date.strftime('%Y-%m-%d')}")
+    ax1.set_xlabel("Time")
+    ax1.set_ylabel("Usage (m³)", color='blue')
+    ax1.plot(daily.index, daily['Hourly Usage'], color='blue')
+    ax1.tick_params(axis='y', labelcolor='blue')
+
+    # Fix X-axis from 00:00 to 23:59
+    ax1.set_xlim(pd.Timestamp(f"{date.date()} 00:00:00"), pd.Timestamp(f"{date.date()} 23:59:59"))
+
+    # 🔶 Highlight 16:00 to 18:00
+    highlight_start = pd.Timestamp(f"{date.date()} 14:00:00")
+    highlight_end = pd.Timestamp(f"{date.date()} 18:00:00")
+    ax1.axvspan(highlight_start, highlight_end, color='yellow', alpha=0.3)
+
+    ax2 = ax1.twinx()
+    ax2.set_ylabel("Pressure (psig)", color='red')
+    ax2.plot(daily.index, daily['Pressure (psig)'], color='red', alpha=0.6)
+    ax2.tick_params(axis='y', labelcolor='red')
+
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
