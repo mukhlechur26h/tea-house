@@ -9,7 +9,7 @@ df.rename(columns={
     'Vb [m3]': 'Uncorrected Volume',
     'Vm [m3]': 'Corrected Volume',
     'p.MP  [ bar]': 'Pressure (bar)',
-    'T.MP [{C]': 'Temperature (C)'
+    'T.MP [C]': 'Temperature (C)'
 }, inplace=True)
 
 df['Hourly Usage'] = df['Corrected Volume'].diff()

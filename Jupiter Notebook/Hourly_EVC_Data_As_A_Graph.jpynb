@@ -1,0 +1,106 @@
+from docx import Document
+from docx.shared import Inches
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+
+# Load and prepare data
+df = pd.read_csv("Downloads/724-000005.csv")
+df['Time'] = pd.to_datetime(df['Time'], format='%Y-%m-%d,%H:%M:%S')
+df.set_index('Time', inplace=True)
+df.rename(columns={
+    'Vb [m3]': 'Uncorrected Volume',
+    'Vbt [m3]': 'Total Uncorrected Volume',
+    'Vm [m3]': 'Corrected Volume',
+    'Vmt [m3]': 'Total Corrected Volume',
+    'Diffrence': 'Diffrence',    
+    'p.MP  [ bar]': 'Pressure (bar)',
+    'T.MP [{C]': 'Temperature (C)'
+}, inplace=True)
+
+df['Hourly Usage'] = df['Diffrence']
+df['Pressure (psig)'] = df['Pressure (bar)'] * 14.5038
+march_data = df.loc['2025-01-01':'2025-04-14']
+
+
+# Set approved pressure limit
+approved_pressure_limit = 30  # in psig
+
+# Set approved hourly load
+approved_hourly_load = 700  # in CM
+
+# Resample to daily data
+daily_usage = march_data['Hourly Usage'].resample('D').sum()
+daily_avg_pressure = march_data['Pressure (psig)'].resample('D').mean()
+
+# Create a Word document
+doc = Document()
+doc.add_heading('Hourly Gas Usage and Pressure - Hafiza Traders Pvt. Ltd', level=1)
+
+# Directory to save plots temporarily
+plot_dir = "Downloads/PlotsData"
+os.makedirs(plot_dir, exist_ok=True)
+
+
+# Loop through each day and plot with fixed time axis
+for date in march_data.index.normalize().unique():
+    daily = march_data.loc[date.strftime('%Y-%m-%d')]
+    
+    fig, ax1 = plt.subplots(figsize=(12, 5))
+    ax1.set_title(f"Hourly Gas Usage and Pressure (psig) - {date.strftime('%Y-%m-%d')}")
+    ax1.set_xlabel("Time")
+    ax1.set_ylabel("Usage (m³)", color='blue')
+    ax1.plot(daily.index, daily['Hourly Usage'], color='blue')
+    ax1.tick_params(axis='y', labelcolor='blue')
+
+    
+    # Daily gas usage bar
+    #ax1.plot(daily_usage.index, daily_usage, color='skyblue', label='Daily Gas Usage (m³)')
+    #ax1.set_ylabel('Gas Usage (m³)', color='blue')
+    #ax1.tick_params(axis='y', labelcolor='blue')
+
+    # Hourly gas usage line
+    ax1.plot(march.index, march['Hourly Usage'], color='Blue', label='Hourly Gas Usage (m³)')
+    ax1.set_ylabel('Hourly Gas Usage (m³)', color='Blue')
+    ax1.tick_params(axis='x', labelcolor='Blue')
+    
+    # Fix X-axis from 00:00 to 23:59
+    ax1.set_xlim(pd.Timestamp(f"{date.date()} 00:00:00"), pd.Timestamp(f"{date.date()} 23:59:59"))
+
+    # 🔶 Highlight 16:00 to 18:00
+    highlight_start = pd.Timestamp(f"{date.date()} 15:00:00")
+    highlight_end = pd.Timestamp(f"{date.date()} 20:00:00")
+    ax1.axvspan(highlight_start, highlight_end, color='red', alpha=0.2)
+    
+    ax2 = ax1.twinx()
+    ax2.set_ylabel("Pressure (psig)", color='red')
+    ax2.plot(daily.index, daily['Pressure (psig)'], color='red', alpha=1)
+    ax2.tick_params(axis='y', labelcolor='red')
+
+    # Create second y-axis for Approved pressure
+    ax2.axhline(approved_pressure_limit, color='red', linestyle=':', label='Approved Pressure Limit')
+    #ax2.set_ylabel('Pressure (psig)', color='red')
+    ax2.tick_params(axis='y', labelcolor='red')
+    
+    # Create second y-axis for Approve Load
+    ax1.axhline(approved_hourly_load, color='Blue', linestyle=':', label='Approved Hourly Load')
+    #ax1.set_ylabel('Hourly Load', color='purple')
+    ax1.tick_params(axis='y', labelcolor='Blue')
+
+    plt.grid(True)
+    #plt.tight_layout()
+    #plt.show()
+
+    plt.tight_layout()
+    plot_path = os.path.join(plot_dir, f"{date.strftime('%Y-%m-%d')}.png")
+    plt.savefig(plot_path)
+    plt.close()
+
+    doc.add_heading(date.strftime('%Y-%m-%d'), level=2)
+    doc.add_picture(plot_path, width=Inches(6))
+
+# Save the document
+doc_path = "Downloads/Hafiza-Tradrs-Pvt-Ltd_2025_Hourly_Report-.docx"
+doc.save(doc_path)
+doc_path
+
